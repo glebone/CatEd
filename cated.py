@@ -73,6 +73,35 @@ def show_modal(stdscr, corrections):
     stdscr.touchwin()
     stdscr.refresh()
 
+# --- Helper: Show About Modal Window ---
+def show_about_modal(stdscr):
+    """
+    Create a centered modal window that shows information about the application.
+    """
+    about_text = [
+        "^..^ CatEd - AI Text Editor",
+        "Version: 0.0.1",
+        "Author: glebone@gmail.com",
+        "",
+        "Press any key to close"
+    ]
+    max_y, max_x = stdscr.getmaxyx()
+    modal_height = min(len(about_text) + 4, max_y - 4)
+    modal_width = min((max(len(line) for line in about_text) + 4) if about_text else 40, max_x - 4)
+    begin_y = (max_y - modal_height) // 2
+    begin_x = (max_x - modal_width) // 2
+
+    modal_win = curses.newwin(modal_height, modal_width, begin_y, begin_x)
+    modal_win.keypad(True)
+    modal_win.border()
+    for idx, line in enumerate(about_text, start=1):
+        if idx < modal_height - 1:
+            modal_win.addstr(idx, 2, line[:modal_width - 4])
+    modal_win.refresh()
+    modal_win.getch()  # Wait for a key press.
+    modal_win.clear()
+    stdscr.touchwin()
+    stdscr.refresh()
 # --- Helper: Update the Status Bar ---
 def update_status_bar(status_win, message, color_pair=1):
     status_win.erase()
@@ -183,9 +212,11 @@ def main(stdscr):
                 update_status_bar(status_win, "Corrected text copied to clipboard!", 2)
                 curses.napms(1000)
                 update_status_bar(status_win,
-                    "CORRECTED MODE – R: rewrite/correct | E: view errors | C: copy | Q: quit", 2)
+                    "CORRECTED MODE – R: rewrite/correct | E: view errors | C: copy | A: about | Q: quit ", 2)
             elif ch in (ord('q'), ord('Q')):
                 break
+            elif ch in (ord('a'), ord('A')):
+                show_about_modal(stdscr)
             # Ignore any other keys in corrected mode.
 
 if __name__ == '__main__':
